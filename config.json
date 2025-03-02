@@ -4,6 +4,5 @@
   "SSH_USER": "idocz",
   "SSH_HOST": "192.168.1.215",
   "PORT": 5000,
-  "DEBUG": false,
-  "ALLOWED_MACS": ["fa:fd:d9:71:1c:57", "28:c5:38:8b:89:ce"]
-}   
+  "DEBUG": false
+} 
