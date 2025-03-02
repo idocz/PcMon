@@ -36,22 +36,22 @@ def wake():
 
 @app.route("/sleep", methods=["POST"])
 def sleep():
-    os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"rundll32.exe powrprof.dll,SetSuspendState 0,1,0\"")
+    os.system(f"ssh -i {cfg['SSH_KEY_PATH']} {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"rundll32.exe powrprof.dll,SetSuspendState 0,1,0\"")
     return jsonify({"message": "PC is now sleeping!"})
 
 @app.route("/hibernate", methods=["POST"])
 def hibernate():
-    os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /h\"")
+    os.system(f"ssh -i {cfg['SSH_KEY_PATH']} {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /h\"")
     return jsonify({"message": "PC is now hibernating!"})
 
 @app.route("/shutdown", methods=["POST"])
 def shutdown():
-    os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /s /t 0\"")
+    os.system(f"ssh -i {cfg['SSH_KEY_PATH']} {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /s /t 0\"")
     return jsonify({"message": "PC is shutting down!"})
 
 @app.route("/restart", methods=["POST"])
 def restart():
-    os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /r /t 0\"")
+    os.system(f"ssh -i {cfg['SSH_KEY_PATH']} {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /r /t 0\"")
     return jsonify({"message": "PC is restarting!"})
 
 if __name__ == "__main__":
