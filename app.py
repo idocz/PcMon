@@ -35,6 +35,7 @@ def is_mac_allowed(client_ip):
         if mac_lines:
             parts = mac_lines[0].split()
             if len(parts) >= 3:
+                print(f"Parts: {parts}")
                 client_mac = parts[3].lower() 
                 print(f"Client MAC: {client_mac}")
                 is_allowed =client_mac in [mac.lower() for mac in cfg['ALLOWED_MACS']]
