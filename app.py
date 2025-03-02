@@ -49,5 +49,10 @@ def shutdown():
     os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /s /t 0\"")
     return jsonify({"message": "PC is shutting down!"})
 
+@app.route("/restart", methods=["POST"])
+def restart():
+    os.system(f"ssh {cfg['SSH_USER']}@{cfg['SSH_HOST']} powershell.exe -Command \"shutdown /r /t 0\"")
+    return jsonify({"message": "PC is restarting!"})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=cfg['PORT'], debug=cfg['DEBUG'])

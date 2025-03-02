@@ -16,7 +16,7 @@
         }
         .status {
             font-size: 28px;
-            color: {{ "green" if status == "Online" else "red" }};
+            color: {% if status == "Online" %}green{% else %}red{% endif %};
         }
         button {
             padding: 15px 30px;
@@ -75,6 +75,7 @@
     <button onclick="sendAction('/sleep')">Sleep</button>
     <button onclick="sendAction('/hibernate')">Hibernate</button>
     <button onclick="sendAction('/shutdown')">Shutdown</button>
+    <button onclick="sendAction('/restart')">Restart</button>
     
     <!-- Popup -->
     <div id="actionPopup" class="popup">
@@ -104,6 +105,9 @@
             } else if (url === '/shutdown') {
                 title = "Shutdown PC";
                 message = "Shutting down PC...";
+            } else if (url === '/restart') {
+                title = "Restart PC";
+                message = "Restarting PC...";
             }
 
             document.getElementById('popupTitle').textContent = title;
