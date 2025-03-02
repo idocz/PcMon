@@ -1,0 +1,8 @@
+{
+  "TARGET_MAC": "74:56:3c:c9:40:6c",
+  "TARGET_IP": "192.168.1.215",
+  "SSH_USER": "idocz",
+  "SSH_HOST": "192.168.1.215",
+  "PORT": 5000,
+  "DEBUG": true
+} 
