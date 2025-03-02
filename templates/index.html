@@ -119,13 +119,21 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             })
-            .then(response => response.json()) // Ensure JSON response
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        throw new Error("Access denied. Your device is not authorized.");
+                    }
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
             .then(data => {
                 // Update popup with server response
                 document.getElementById('popupMessage').textContent = data.message;
             })
             .catch(error => {
-                document.getElementById('popupMessage').textContent = "Error: " + error;
+                document.getElementById('popupMessage').textContent = "Error: " + error.message;
             });
         }
 
