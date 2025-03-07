@@ -3,7 +3,16 @@
   "TARGET_IP": "192.168.1.215",
   "SSH_USER": "idocz",
   "SSH_HOST": "192.168.1.215",
-  "SSH_KEY_PATH": "~/.ssh/shubi",
+  "SSH_KEY_PATH": "~/.ssh/rasp",
   "PORT": 5000,
-  "DEBUG": false
+  "DEBUG": false,
+  "SHORTCUTS": {
+    "Task Manager": "CTRL SHIFT ESC",
+    "Show Desktop": "WIN D",
+    "Show Windows": "WIN TAB",
+    "Minimize All": "WIN M",
+    "ALT F4": "ALT F4",
+    "NVIDIA Overlay": "ALT Z",
+    "NVIDIA Filters": "ALT F3"
+  }
 } 

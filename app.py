@@ -1,4 +1,4 @@
-from dash import Dash, html, dcc, Input, Output, callback, State, no_update, ctx
+from dash import Dash, html, dcc, Input, Output, callback, State, no_update, ctx, ALL
 import dash_bootstrap_components as dbc
 import os
 import socket
@@ -30,6 +30,7 @@ def is_pc_online():
 def run_ssh_command(command):
     try:
         ssh_command = f"ssh -i {cfg['SSH_KEY_PATH']} {cfg['SSH_USER']}@{cfg['SSH_HOST']} {command}"
+        print(ssh_command)
         return os.system(ssh_command)
     except Exception:
         return 1
@@ -104,6 +105,37 @@ app.layout = html.Div([
         centered=True,
     ),
     
+    # Shortcuts modal
+    dbc.Modal(
+        [
+            dbc.ModalHeader(dbc.ModalTitle("Shortcuts"), className="bg-primary text-white"),
+            dbc.ModalBody(
+                html.Div(
+                    [
+                        html.Div([
+                            dbc.Button(
+                                shortcut, 
+                                id={'type': 'shortcut-btn', 'index': i},
+                                n_clicks=0, 
+                                color="primary",
+                                className="me-2",
+                                style={'width': '180px'}
+                            )
+                        ], style={'margin': '5px auto', 'textAlign': 'center', 'width': '320px'})
+                        for i, shortcut in enumerate(cfg['SHORTCUTS'].keys())
+                    ]
+                )
+            ),
+            dbc.ModalFooter(
+                dbc.Button("Close", id="close-shortcuts-modal", className="ms-auto", n_clicks=0)
+            ),
+        ],
+        id="shortcuts-modal",
+        is_open=False,
+        centered=True,
+        size="lg",
+    ),
+    
     # Header
     html.H1("PC Remote Control", style={'textAlign': 'center', 'marginBottom': '30px'}),
     
@@ -167,6 +199,13 @@ app.layout = html.Div([
             html.Button("Restart", id='restart-btn', n_clicks=0, style=button_style),
             html.Div(id='restart-output', style={'height': '10px'})
         ], style={'margin': '5px auto', 'textAlign': 'center', 'width': '320px'}),
+        
+        # Shortcuts
+        html.Div([
+            html.Button("Shortcuts", id='shortcuts-btn', n_clicks=0, style=button_style),
+            html.Div(id='shortcuts-output', style={'height': '10px'})
+        ], style={'margin': '5px auto', 'textAlign': 'center', 'width': '320px'}),
+        
     ], style={'textAlign': 'center', 'marginBottom': '20px', 'maxWidth': '400px', 'margin': '0 auto'}),
     
 ], style={'fontFamily': 'Arial, sans-serif', 'margin': '0 auto', 'maxWidth': '600px', 'padding': '20px'})
@@ -180,8 +219,61 @@ app.layout = html.Div([
 )
 def toggle_modal(n_close, is_open):
     if n_close:
-        return False
+        return not is_open
     return is_open
+
+# Callback to open/close the shortcuts modal
+@callback(
+    Output("shortcuts-modal", "is_open", allow_duplicate=True),
+    [Input("shortcuts-btn", "n_clicks"), Input("close-shortcuts-modal", "n_clicks")],
+    [State("shortcuts-modal", "is_open")],
+    prevent_initial_call=True
+)
+def toggle_shortcuts_modal(n_open, n_close, is_open):
+    if n_open or n_close:
+        return not is_open
+    return is_open
+
+# Callback to handle shortcut button clicks
+@callback(
+    [Output({'type': 'shortcut-btn', 'index': ALL}, 'disabled'),
+     Output({'type': 'shortcut-btn', 'index': ALL}, 'children')],
+    [Input({'type': 'shortcut-btn', 'index': ALL}, 'n_clicks')],
+    [State({'type': 'shortcut-btn', 'index': ALL}, 'children')],
+    prevent_initial_call=True
+)
+def handle_shortcut_actions(n_clicks, button_labels):
+    # Find which button was clicked
+    triggered_id = ctx.triggered_id
+    
+    if triggered_id is None:
+        return [no_update] * len(n_clicks), [no_update] * len(n_clicks)
+    
+    # Get the index of the clicked button
+    index = triggered_id['index']
+    shortcut_name = button_labels[index]
+    shortcut_value = cfg['SHORTCUTS'][shortcut_name]
+    
+    # Create output arrays with no_update for all items
+    disabled_states = [no_update] * len(n_clicks)
+    button_children = [no_update] * len(n_clicks)
+    
+    # Disable the clicked button and set loading state
+    disabled_states[index] = True
+    button_children[index] = [
+        dbc.Spinner(size="sm", spinner_style={"margin-right": "5px"}),
+        shortcut_name
+    ]
+    
+    # Run the command
+    command = f"\"psexec -i 1 -s powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\Scripts\press_keys.ps1 {shortcut_value}\""
+    exit_code = run_ssh_command(command)
+    
+    # After command execution, update the button state
+    disabled_states[index] = False
+    button_children[index] = shortcut_name
+    
+    return disabled_states, button_children
 
 # Callback to initialize status and check PC on page load
 @callback(
